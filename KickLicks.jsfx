@@ -1,6 +1,8 @@
 desc:KickLicks - Kick Drum Bassline Generator
-//tags: MIDI generator bass kick drum
-//author: KickLicks
+tags: MIDI generator bass kick drum
+author: KickLicks
+in_pin:none
+out_pin:none
 
 // --- Slider Definitions ---
 slider1:9<0,15,1{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}>Input MIDI Channel
@@ -60,35 +62,31 @@ slider15:0<0,1,1{Off,Reset Now}>Reset Pattern
 128[6] = 7;  // Mixolydian
 128[7] = 12; // Chromatic
 
-// Note list buffer at address 200+ (up to 48 notes max = 16 notes * 3 octaves)
-// note_list_addr = 200
-
 // State variables
 note_active = 0;
 active_note = 0;
 note_off_time = 0;
 global_sample_pos = 0;
 pattern_pos = 0;
-pendulum_dir = 1; // 1 = up, -1 = down
+pendulum_dir = 1;
 note_list_len = 0;
-last_note_name = 0;
 last_note_midi = 0;
 note_flash = 0;
 hit_count = 0;
+notes_in_pattern = 0;
 
-// Build initial note list
-function build_note_list() local(scale_addr scale_len root base_note i oct n note) (
-  scale_addr = slider4 * 16;
-  scale_len = 128[slider4];
-  root = slider5;
-  base_note = root + slider6 * 12;
+function build_note_list() local(scale_addr scale_len root base_note i oct note) (
+  scale_addr = (slider4|0) * 16;
+  scale_len = 128[(slider4|0)];
+  root = slider5|0;
+  base_note = root + (slider6|0) * 12;
   note_list_len = 0;
 
   oct = 0;
-  while (oct < slider13) (
+  while (oct < (slider13|0)) (
     i = 0;
     while (i < scale_len && note_list_len < 48) (
-      note = base_note + (scale_addr[i]) + oct * 12;
+      note = base_note + scale_addr[i] + oct * 12;
       note <= 127 && note >= 0 ? (
         200[note_list_len] = note;
         note_list_len += 1;
@@ -98,28 +96,25 @@ function build_note_list() local(scale_addr scale_len root base_note i oct n not
     oct += 1;
   );
 
-  // Clamp notes_in_pattern to available notes
-  note_list_len < slider8 ? (
+  note_list_len < (slider8|0) ? (
     notes_in_pattern = note_list_len;
   ) : (
-    notes_in_pattern = slider8;
+    notes_in_pattern = slider8|0;
   );
 
-  // Clamp pattern position
   notes_in_pattern > 0 && pattern_pos >= notes_in_pattern ? (
     pattern_pos = 0;
   );
 );
 
 build_note_list();
-note_length_samples = slider9 * srate / 1000;
+note_length_samples = (slider9 * srate / 1000)|0;
 
 @slider
 
-note_length_samples = slider9 * srate / 1000;
+note_length_samples = (slider9 * srate / 1000)|0;
 build_note_list();
 
-// Reset pattern if requested
 slider15 > 0 ? (
   pattern_pos = 0;
   pendulum_dir = 1;
@@ -129,32 +124,31 @@ slider15 > 0 ? (
 
 @block
 
-// --- Check for pending note-off within this block ---
+// Check for pending note-off within this block
 note_off_offset = -1;
 note_active ? (
   note_off_time < global_sample_pos ? (
-    // Note-off was overdue, fire at start of block
-    midisend(0, 0x80 | slider3, active_note, 0);
+    midisend(0, $x80 | slider3, active_note, 0);
     note_active = 0;
   ) : (
     note_off_time < global_sample_pos + samplesblock ? (
-      note_off_offset = note_off_time - global_sample_pos;
+      note_off_offset = (note_off_time - global_sample_pos)|0;
       note_off_offset < 0 ? note_off_offset = 0;
     );
   );
 );
 
-// --- Process all incoming MIDI ---
+// Process all incoming MIDI
 while (midirecv(offset, msg1, msg2, msg3)) (
-  input_chan = msg1 & 0x0F;
-  status = msg1 & 0xF0;
+  input_chan = msg1 & $x0F;
+  status = msg1 & $xF0;
 
   is_trigger = (input_chan == slider1) && (msg2 == slider2);
-  is_note_on = (status == 0x90) && (msg3 > 0);
+  is_note_on = (status == $x90) && (msg3 > 0);
 
   // Fire pending note-off if it should happen before this event
   note_off_offset >= 0 && note_off_offset <= offset && note_active ? (
-    midisend(note_off_offset, 0x80 | slider3, active_note, 0);
+    midisend(note_off_offset, $x80 | slider3, active_note, 0);
     note_active = 0;
     note_off_offset = -1;
   );
@@ -163,7 +157,7 @@ while (midirecv(offset, msg1, msg2, msg3)) (
   is_trigger && is_note_on ? (
     // Kill previous note if still active
     note_active ? (
-      midisend(offset, 0x80 | slider3, active_note, 0);
+      midisend(offset, $x80 | slider3, active_note, 0);
       note_active = 0;
     );
 
@@ -182,28 +176,25 @@ while (midirecv(offset, msg1, msg2, msg3)) (
       slider14 > 0 ? (
         humanize_amt = slider14 / 100;
 
-        // Velocity variation: +/- up to 20% of velocity
         vel_var = (rand(2) - 1) * humanize_amt * 0.2 * vel;
         vel = vel + vel_var;
-        vel = max(1, min(127, floor(vel)));
+        vel = max(1, min(127, (vel|0)));
 
-        // Timing variation: +/- up to 15ms
         time_var = (rand(2) - 1) * humanize_amt * 0.015 * srate;
-        send_offset = offset + floor(time_var);
+        send_offset = offset + (time_var|0);
         send_offset = max(0, min(samplesblock - 1, send_offset));
       ) : (
         send_offset = offset;
       );
 
       // Send bass note on
-      midisend(send_offset, 0x90 | slider3, next_note, vel);
+      midisend(send_offset, $x90 | slider3, next_note, vel);
       active_note = next_note;
       note_active = 1;
       note_off_time = global_sample_pos + send_offset + note_length_samples;
 
-      // Track display info
       last_note_midi = next_note;
-      note_flash = 30; // frames to flash
+      note_flash = 30;
       hit_count += 1;
 
       // Advance pattern
@@ -224,11 +215,9 @@ while (midirecv(offset, msg1, msg2, msg3)) (
           pendulum_dir = 1;
         );
       ) : slider7 == 3 ? ( // Random
-        pattern_pos = floor(rand(notes_in_pattern));
+        pattern_pos = rand(notes_in_pattern)|0;
       ) : slider7 == 4 ? ( // Root-Fifth
-        // Alternate between root (pos 0) and the note closest to a fifth (7 semitones)
         pattern_pos == 0 ? (
-          // Find note closest to root + 7 semitones
           fifth_target = 200[0] + 7;
           best_idx = 0;
           best_dist = 999;
@@ -257,7 +246,7 @@ while (midirecv(offset, msg1, msg2, msg3)) (
 
 // Fire note-off if it was scheduled but no MIDI events came after it
 note_off_offset >= 0 && note_active ? (
-  midisend(note_off_offset, 0x80 | slider3, active_note, 0);
+  midisend(note_off_offset, $x80 | slider3, active_note, 0);
   note_active = 0;
 );
 
@@ -265,19 +254,19 @@ global_sample_pos += samplesblock;
 
 @gfx 450 280
 
-// --- Background ---
+// Background
 gfx_set(0.12, 0.12, 0.15, 1);
 gfx_rect(0, 0, gfx_w, gfx_h);
 
-// --- Title bar ---
+// Title bar
 gfx_set(0.2, 0.5, 0.8, 1);
 gfx_rect(0, 0, gfx_w, 32);
 gfx_set(1, 1, 1, 1);
 gfx_x = 10; gfx_y = 8;
-gfx_setfont(1, "Arial", 16, 'b');
+gfx_setfont(1, "Arial", 16, 66);
 gfx_drawstr("KickLicks - Kick Drum Bassline Generator");
 
-// --- Note activity indicator ---
+// Note activity indicator
 note_flash > 0 ? (
   gfx_set(0.2, 0.9, 0.3, min(1, note_flash / 10));
   note_flash -= 1;
@@ -290,12 +279,11 @@ note_flash > 0 ? (
 );
 gfx_circle(gfx_w - 25, 16, 8, 1);
 
-// --- Scale & Root info ---
+// Scale & Root info
 gfx_set(0.8, 0.8, 0.8, 1);
 gfx_setfont(2, "Arial", 13, 0);
 gfx_x = 10; gfx_y = 42;
 
-// Root note name
 gfx_drawstr("Root: ");
 gfx_set(1, 0.9, 0.4, 1);
 slider5 == 0 ? gfx_drawstr("C") :
@@ -328,7 +316,7 @@ slider4 == 5 ? gfx_drawstr("Dorian") :
 slider4 == 6 ? gfx_drawstr("Mixolydian") :
 slider4 == 7 ? gfx_drawstr("Chromatic");
 
-// --- Pattern info ---
+// Pattern info
 gfx_set(0.8, 0.8, 0.8, 1);
 gfx_x = 10; gfx_y = 62;
 gfx_drawstr("Pattern: ");
@@ -356,16 +344,15 @@ gfx_set(0.6, 0.8, 1, 1);
 gfx_drawnumber(slider14, 0);
 gfx_drawstr("%");
 
-// --- Last note display ---
+// Last note display
 gfx_x = 10; gfx_y = 88;
 gfx_set(0.8, 0.8, 0.8, 1);
 gfx_drawstr("Last Note: ");
 hit_count > 0 ? (
   gfx_set(0.3, 1, 0.5, 1);
-  gfx_setfont(3, "Arial", 16, 'b');
-  // Note name from MIDI number
+  gfx_setfont(3, "Arial", 16, 66);
   note_name_idx = last_note_midi % 12;
-  note_oct = floor(last_note_midi / 12) - 1;
+  note_oct = (last_note_midi / 12)|0;
   note_name_idx == 0 ? gfx_drawstr("C") :
   note_name_idx == 1 ? gfx_drawstr("C#") :
   note_name_idx == 2 ? gfx_drawstr("D") :
@@ -389,7 +376,7 @@ hit_count > 0 ? (
   gfx_drawstr("--");
 );
 
-// --- Pattern position visualization ---
+// Pattern position visualization
 gfx_x = 10; gfx_y = 118;
 gfx_set(0.8, 0.8, 0.8, 1);
 gfx_setfont(2, "Arial", 13, 0);
@@ -405,19 +392,15 @@ while (i < max_display) (
   box_x = 10 + i * (box_size + box_gap);
 
   i == pattern_pos ? (
-    // Current position - highlighted
     gfx_set(0.2, 0.8, 0.4, 1);
     gfx_rect(box_x, box_y, box_size, box_size);
-    // Draw note number inside
     gfx_set(0, 0, 0, 1);
   ) : (
-    // Other positions
     gfx_set(0.25, 0.25, 0.3, 1);
     gfx_rect(box_x, box_y, box_size, box_size);
     gfx_set(0.6, 0.6, 0.6, 1);
   );
 
-  // Draw MIDI note number in box
   gfx_setfont(4, "Arial", 9, 0);
   i < note_list_len ? (
     gfx_x = box_x + 2;
@@ -435,7 +418,7 @@ while (i < max_display) (
   i += 1;
 );
 
-// --- Note name labels under boxes ---
+// Note name labels under boxes
 gfx_setfont(4, "Arial", 9, 0);
 i = 0;
 while (i < max_display && i < note_list_len) (
@@ -461,14 +444,14 @@ while (i < max_display && i < note_list_len) (
   i += 1;
 );
 
-// --- Hit counter ---
+// Hit counter
 gfx_set(0.5, 0.5, 0.5, 1);
 gfx_setfont(2, "Arial", 13, 0);
 gfx_x = 10; gfx_y = gfx_h - 22;
 gfx_drawstr("Hits: ");
 gfx_drawnumber(hit_count, 0);
 
-// --- Channel info ---
+// Channel info
 gfx_x = gfx_w - 200; gfx_y = gfx_h - 22;
 gfx_drawstr("In Ch:");
 gfx_drawnumber(slider1 + 1, 0);
