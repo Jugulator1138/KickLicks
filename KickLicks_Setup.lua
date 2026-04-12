@@ -1,122 +1,127 @@
 -- KickLicks_Setup.lua
 -- REAPER Script: Auto-creates tracks and MIDI routing for KickLicks
---
--- HOW TO RUN:
---   1. In REAPER, go to Actions > Show Action List
---   2. Click "New action..." > "Load ReaScript..."
---   3. Browse to this file and select it
---   4. Click "Run" (or assign a shortcut)
+-- Run from: Actions, Show Action List, New action, Load ReaScript
 
 reaper.Undo_BeginBlock()
 reaper.PreventUIRefresh(1)
 
--- Get current track count so we insert at the end
 local num_tracks = reaper.CountTracks(0)
 
------------------------------------------------------
--- TRACK 1: Drums (KickLicks + Superior Drummer 3)
------------------------------------------------------
+-----------------------------------------------------------
+-- TRACK 1: MIDI Input (receives from drum module)
+--   No FX here - just captures MIDI and fans it out
+-----------------------------------------------------------
 reaper.InsertTrackAtIndex(num_tracks, true)
-local drums = reaper.GetTrack(0, num_tracks)
-reaper.GetSetMediaTrackInfo_String(drums, "P_NAME", "Drums - KickLicks + SD3", true)
+local midi_in = reaper.GetTrack(0, num_tracks)
+reaper.GetSetMediaTrackInfo_String(midi_in, "P_NAME", "MIDI Input (Drums)", true)
+reaper.SetMediaTrackInfo_Value(midi_in, "I_RECARM", 1)
+reaper.SetMediaTrackInfo_Value(midi_in, "I_RECINPUT", 4096 + 62 * 32)
+reaper.SetMediaTrackInfo_Value(midi_in, "I_RECMON", 1)
+reaper.SetTrackColor(midi_in, reaper.ColorToNative(180, 180, 60) + 0x1000000)
 
--- Record arm the drums track
-reaper.SetMediaTrackInfo_Value(drums, "I_RECARM", 1)
+-----------------------------------------------------------
+-- TRACK 2: Superior Drummer 3 (receives all drum MIDI)
+-----------------------------------------------------------
+reaper.InsertTrackAtIndex(num_tracks + 1, true)
+local sd3 = reaper.GetTrack(0, num_tracks + 1)
+reaper.GetSetMediaTrackInfo_String(sd3, "P_NAME", "Drums - SD3", true)
+reaper.SetTrackColor(sd3, reaper.ColorToNative(60, 100, 180) + 0x1000000)
 
--- Set input to All MIDI Inputs, All Channels
--- Encoding: 4096 (MIDI flag) + 62*32 (all devices) + 0 (all channels)
-reaper.SetMediaTrackInfo_Value(drums, "I_RECINPUT", 4096 + 62 * 32 + 0)
-
--- Enable input monitoring so you hear it live
-reaper.SetMediaTrackInfo_Value(drums, "I_RECMON", 1)
+-----------------------------------------------------------
+-- TRACK 3: KickLicks (receives drum MIDI, generates bass)
+--   Pass-through OFF - only outputs bass notes on Ch 1
+-----------------------------------------------------------
+reaper.InsertTrackAtIndex(num_tracks + 2, true)
+local kicklicks = reaper.GetTrack(0, num_tracks + 2)
+reaper.GetSetMediaTrackInfo_String(kicklicks, "P_NAME", "KickLicks", true)
+reaper.SetTrackColor(kicklicks, reaper.ColorToNative(180, 100, 60) + 0x1000000)
 
 -- Try to add KickLicks JSFX
 local kl_found = false
-local kl_idx = reaper.TrackFX_AddByName(drums, "JS:KickLicks - Kick Drum Bassline Generator", false, -1)
+local kl_idx = reaper.TrackFX_AddByName(kicklicks, "JS:KickLicks - Kick Drum Bassline Generator", false, -1)
 if kl_idx >= 0 then
   kl_found = true
 else
-  -- Try alternate names in case file is in a subfolder
-  kl_idx = reaper.TrackFX_AddByName(drums, "JS:KickLicks", false, -1)
+  kl_idx = reaper.TrackFX_AddByName(kicklicks, "JS:KickLicks", false, -1)
   if kl_idx >= 0 then
     kl_found = true
   else
-    kl_idx = reaper.TrackFX_AddByName(drums, "JS:KickLicks/KickLicks", false, -1)
+    kl_idx = reaper.TrackFX_AddByName(kicklicks, "JS:KickLicks/KickLicks", false, -1)
     if kl_idx >= 0 then
       kl_found = true
     end
   end
 end
 
------------------------------------------------------
--- TRACK 2: Bass Guitar
------------------------------------------------------
-reaper.InsertTrackAtIndex(num_tracks + 1, true)
-local bass = reaper.GetTrack(0, num_tracks + 1)
+-- Set KickLicks pass-through to NO (slider12 = 1)
+if kl_found and kl_idx >= 0 then
+  reaper.TrackFX_SetParam(kicklicks, kl_idx, 11, 1.0)
+end
+
+-----------------------------------------------------------
+-- TRACK 4: Bass Guitar VST
+-----------------------------------------------------------
+reaper.InsertTrackAtIndex(num_tracks + 3, true)
+local bass = reaper.GetTrack(0, num_tracks + 3)
 reaper.GetSetMediaTrackInfo_String(bass, "P_NAME", "Bass Guitar", true)
+reaper.SetTrackColor(bass, reaper.ColorToNative(60, 160, 80) + 0x1000000)
 
--- Color the tracks for easy identification
--- Drums = blue, Bass = green
-reaper.SetTrackColor(drums, reaper.ColorToNative(60, 100, 180) | 0x1000000)
-reaper.SetTrackColor(bass, reaper.ColorToNative(60, 160, 80) | 0x1000000)
+-----------------------------------------------------------
+-- SEND 1: MIDI Input -> SD3 (all MIDI, no audio)
+-----------------------------------------------------------
+local send1 = reaper.CreateTrackSend(midi_in, sd3)
+reaper.SetTrackSendInfo_Value(midi_in, 0, send1, "I_SRCCHAN", -1)
+reaper.SetTrackSendInfo_Value(midi_in, 0, send1, "I_MIDIFLAGS", 0)
 
------------------------------------------------------
--- MIDI SEND: Drums -> Bass (Channel 1 only)
------------------------------------------------------
-local send_idx = reaper.CreateTrackSend(drums, bass)
+-----------------------------------------------------------
+-- SEND 2: MIDI Input -> KickLicks (all MIDI, no audio)
+-----------------------------------------------------------
+local send2 = reaper.CreateTrackSend(midi_in, kicklicks)
+reaper.SetTrackSendInfo_Value(midi_in, 0, send2, "I_SRCCHAN", -1)
+reaper.SetTrackSendInfo_Value(midi_in, 0, send2, "I_MIDIFLAGS", 0)
 
--- Disable audio on this send (we only want MIDI)
--- I_SRCCHAN = -1 means no audio channels
-reaper.SetTrackSendInfo_Value(drums, 0, send_idx, "I_SRCCHAN", -1)
+-----------------------------------------------------------
+-- SEND 3: KickLicks -> Bass (Ch 1 only, no audio)
+-----------------------------------------------------------
+local send3 = reaper.CreateTrackSend(kicklicks, bass)
+reaper.SetTrackSendInfo_Value(kicklicks, 0, send3, "I_SRCCHAN", -1)
+reaper.SetTrackSendInfo_Value(kicklicks, 0, send3, "I_MIDIFLAGS", 1)
 
--- MIDI flags: only pass Channel 1 (the KickLicks output channel)
--- Bits 0-4 = source channel filter (0=all, 1=ch1 only, 2=ch2, etc.)
--- Bits 5-9 = dest channel (0=keep original)
--- Value of 1 = only channel 1, keep original routing
-reaper.SetTrackSendInfo_Value(drums, 0, send_idx, "I_MIDIFLAGS", 1)
+-----------------------------------------------------------
+-- Disable master send on MIDI Input track (no audio to master)
+-----------------------------------------------------------
+reaper.SetMediaTrackInfo_Value(midi_in, "B_MAINSEND", 0)
 
------------------------------------------------------
+-----------------------------------------------------------
 -- Done
------------------------------------------------------
+-----------------------------------------------------------
 reaper.PreventUIRefresh(-1)
 reaper.TrackList_AdjustWindows(false)
 reaper.UpdateArrange()
 reaper.Undo_EndBlock("KickLicks Auto-Setup", -1)
 
--- Build status message
 local msg = "KickLicks setup complete!\n\n"
-
-msg = msg .. "CREATED TRACKS:\n"
-msg = msg .. "  Track: 'Drums - KickLicks + SD3' (blue)\n"
-msg = msg .. "    - Record armed with MIDI input enabled\n"
-msg = msg .. "    - Input monitoring ON\n"
+msg = msg .. "4 TRACKS CREATED:\n\n"
+msg = msg .. "  1. MIDI Input (yellow) - record armed, receives your drum kit\n"
+msg = msg .. "     Sends MIDI to both SD3 and KickLicks tracks\n\n"
+msg = msg .. "  2. Drums - SD3 (blue) - add Superior Drummer 3 here\n"
+msg = msg .. "     Receives ALL drum MIDI from track 1\n\n"
+msg = msg .. "  3. KickLicks (orange) - filters kick, generates bass notes\n"
 if kl_found then
-  msg = msg .. "    - KickLicks JSFX loaded in FX chain\n"
+  msg = msg .. "     KickLicks JSFX loaded, pass-through OFF\n\n"
 else
-  msg = msg .. "    - WARNING: KickLicks JSFX not found!\n"
-  msg = msg .. "      Copy KickLicks.jsfx to your REAPER Effects folder,\n"
-  msg = msg .. "      then rescan (Options > Preferences > Plug-ins > JS > Re-scan)\n"
-  msg = msg .. "      and add it manually to this track's FX chain.\n"
+  msg = msg .. "     WARNING: KickLicks JSFX not found! Add it manually.\n\n"
 end
-msg = msg .. "\n"
-msg = msg .. "  Track: 'Bass Guitar' (green)\n"
-msg = msg .. "    - Receives MIDI from Drums track, Channel 1 only\n"
-msg = msg .. "\n"
-msg = msg .. "MIDI ROUTING (already configured):\n"
-msg = msg .. "  Drums -> Bass send: MIDI Channel 1 only, no audio\n"
-msg = msg .. "\n"
+msg = msg .. "  4. Bass Guitar (green) - add your bass VST here\n"
+msg = msg .. "     Receives ONLY Channel 1 bass notes from KickLicks\n\n"
+msg = msg .. "ROUTING (already wired up):\n"
+msg = msg .. "  MIDI Input --ALL MIDI--> SD3\n"
+msg = msg .. "  MIDI Input --ALL MIDI--> KickLicks\n"
+msg = msg .. "  KickLicks  --CH 1 ONLY--> Bass Guitar\n\n"
 msg = msg .. "NEXT STEPS:\n"
-msg = msg .. "  1. Click the input dropdown on the Drums track\n"
-msg = msg .. "     and select: Input MIDI > PreSonus FireBox\n"
-msg = msg .. "  2. Open FX on Drums track, add Superior Drummer 3\n"
-msg = msg .. "     AFTER KickLicks (KickLicks must be first!)\n"
-msg = msg .. "  3. Open FX on Bass track, add your bass guitar VST\n"
-msg = msg .. "  4. Hit your kick drum - you should hear bass notes!\n"
-msg = msg .. "\n"
-msg = msg .. "TROUBLESHOOTING:\n"
-msg = msg .. "  - Make sure KickLicks Input Channel = 10 (your TD-5)\n"
-msg = msg .. "  - Make sure KickLicks Output Channel = 1\n"
-msg = msg .. "  - Make sure KickLicks Trigger Note = 36 (kick)\n"
-msg = msg .. "  - Make sure Pass-Through = Yes\n"
+msg = msg .. "  1. Set MIDI Input track to your PreSonus FireBox\n"
+msg = msg .. "  2. Add Superior Drummer 3 on the SD3 track\n"
+msg = msg .. "  3. Add your bass VST on the Bass Guitar track\n"
+msg = msg .. "  4. Hit your kick drum!\n"
 
 reaper.ShowMessageBox(msg, "KickLicks Auto-Setup", 0)
