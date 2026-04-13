@@ -82,6 +82,22 @@ last_mouse_cap = 0;
 gui_fonts_set = 0;
 hover_control = -1;
 
+function gui_nn(nn) (
+  nn == 0 ? gfx_drawstr("C") : nn == 1 ? gfx_drawstr("C#") :
+  nn == 2 ? gfx_drawstr("D") : nn == 3 ? gfx_drawstr("D#") :
+  nn == 4 ? gfx_drawstr("E") : nn == 5 ? gfx_drawstr("F") :
+  nn == 6 ? gfx_drawstr("F#") : nn == 7 ? gfx_drawstr("G") :
+  nn == 8 ? gfx_drawstr("G#") : nn == 9 ? gfx_drawstr("A") :
+  nn == 10 ? gfx_drawstr("A#") : nn == 11 ? gfx_drawstr("B");
+);
+
+function gui_sn(si) (
+  si == 0 ? gfx_drawstr("MAJOR") : si == 1 ? gfx_drawstr("NAT.MINOR") :
+  si == 2 ? gfx_drawstr("m.PENTA") : si == 3 ? gfx_drawstr("M.PENTA") :
+  si == 4 ? gfx_drawstr("BLUES") : si == 5 ? gfx_drawstr("DORIAN") :
+  si == 6 ? gfx_drawstr("MIXOLYD") : si == 7 ? gfx_drawstr("CHROMATIC");
+);
+
 function build_note_list() local(scale_addr scale_len root base_note i oct note max_notes) (
   scale_addr = (slider4|0) * 16;
   scale_len = 128[(slider4|0)];
@@ -269,23 +285,6 @@ gui_fonts_set == 0 ? (
   gfx_setfont(4, "Courier New", 11, 0);
   gfx_setfont(5, "Courier New", 13, 0);
   gui_fonts_set = 1;
-);
-
-// Helpers
-function gui_nn(nn) (
-  nn == 0 ? gfx_drawstr("C") : nn == 1 ? gfx_drawstr("C#") :
-  nn == 2 ? gfx_drawstr("D") : nn == 3 ? gfx_drawstr("D#") :
-  nn == 4 ? gfx_drawstr("E") : nn == 5 ? gfx_drawstr("F") :
-  nn == 6 ? gfx_drawstr("F#") : nn == 7 ? gfx_drawstr("G") :
-  nn == 8 ? gfx_drawstr("G#") : nn == 9 ? gfx_drawstr("A") :
-  nn == 10 ? gfx_drawstr("A#") : nn == 11 ? gfx_drawstr("B");
-);
-
-function gui_sn(si) (
-  si == 0 ? gfx_drawstr("MAJOR") : si == 1 ? gfx_drawstr("NAT.MINOR") :
-  si == 2 ? gfx_drawstr("m.PENTA") : si == 3 ? gfx_drawstr("M.PENTA") :
-  si == 4 ? gfx_drawstr("BLUES") : si == 5 ? gfx_drawstr("DORIAN") :
-  si == 6 ? gfx_drawstr("MIXOLYD") : si == 7 ? gfx_drawstr("CHROMATIC");
 );
 
 // Mouse state
@@ -760,7 +759,7 @@ click && mouse_y >= 241 && mouse_y < 257 ? (
 );
 
 // Fixed Velocity (slider11, 1-127) - dimmed when Follow
-slider10 == 1 ? sl_a = 1 : sl_a = 0.3;
+sl_a = slider10 == 1 ? 1 : 0.3;
 gfx_setfont(4);
 gfx_set(0.361, 0.322, 0.282, sl_a);
 gfx_x = 15; gfx_y = 261; gfx_drawstr("FIXED VEL");
