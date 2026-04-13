@@ -275,6 +275,7 @@ note_off_offset >= 0 && note_active ? (
 global_sample_pos += samplesblock;
 
 
+
 @gfx 560 380
 
 // Font setup
@@ -290,7 +291,7 @@ gui_fonts_set == 0 ? (
 // Mouse state
 click = (mouse_cap & 1) && !(last_mouse_cap & 1);
 rclick = (mouse_cap & 2) && !(last_mouse_cap & 2);
-!(mouse_cap & 1) ? drag_slider = -1;
+!(mouse_cap & 1) ? (drag_slider = -1);
 
 // Active drag
 (mouse_cap & 1) && drag_slider > 0 ? (
@@ -411,103 +412,6 @@ gfx_x = 131; gfx_y = 76; gfx_drawstr("+");
 click && mouse_y >= 75 && mouse_y < 91 ? (
   mouse_x >= 72 && mouse_x < 92 ? ( slider3 = max(0, slider3 - 1); sliderchange(slider3); );
   mouse_x >= 124 && mouse_x < 144 ? ( slider3 = min(15, slider3 + 1); sliderchange(slider3); );
-gfx_circle(gfx_w - 25, 16, 8, 1);
-
-// Scale & Root info
-gfx_set(0.8, 0.8, 0.8, 1);
-gfx_setfont(2, "Arial", 13, 0);
-gfx_x = 10; gfx_y = 42;
-
-gfx_drawstr("Root: ");
-gfx_set(1, 0.9, 0.4, 1);
-slider5 == 0 ? gfx_drawstr("C") :
-slider5 == 1 ? gfx_drawstr("C#") :
-slider5 == 2 ? gfx_drawstr("D") :
-slider5 == 3 ? gfx_drawstr("D#") :
-slider5 == 4 ? gfx_drawstr("E") :
-slider5 == 5 ? gfx_drawstr("F") :
-slider5 == 6 ? gfx_drawstr("F#") :
-slider5 == 7 ? gfx_drawstr("G") :
-slider5 == 8 ? gfx_drawstr("G#") :
-slider5 == 9 ? gfx_drawstr("A") :
-slider5 == 10 ? gfx_drawstr("A#") :
-slider5 == 11 ? gfx_drawstr("B");
-
-gfx_set(0.8, 0.8, 0.8, 1);
-gfx_drawstr("  Oct: ");
-gfx_set(1, 0.9, 0.4, 1);
-gfx_drawnumber(slider6, 0);
-
-gfx_set(0.8, 0.8, 0.8, 1);
-gfx_drawstr("  Scale: ");
-gfx_set(1, 0.9, 0.4, 1);
-slider4 == 0 ? gfx_drawstr("Major") :
-slider4 == 1 ? gfx_drawstr("Natural Minor") :
-slider4 == 2 ? gfx_drawstr("Minor Pentatonic") :
-slider4 == 3 ? gfx_drawstr("Major Pentatonic") :
-slider4 == 4 ? gfx_drawstr("Blues") :
-slider4 == 5 ? gfx_drawstr("Dorian") :
-slider4 == 6 ? gfx_drawstr("Mixolydian") :
-slider4 == 7 ? gfx_drawstr("Chromatic");
-
-// Pattern info
-gfx_set(0.8, 0.8, 0.8, 1);
-gfx_x = 10; gfx_y = 62;
-gfx_drawstr("Pattern: ");
-gfx_set(0.6, 0.8, 1, 1);
-slider7 == 0 ? gfx_drawstr("Up") :
-slider7 == 1 ? gfx_drawstr("Down") :
-slider7 == 2 ? gfx_drawstr("Pendulum") :
-slider7 == 3 ? gfx_drawstr("Random") :
-slider7 == 4 ? gfx_drawstr("Root-Fifth");
-
-gfx_set(0.8, 0.8, 0.8, 1);
-gfx_drawstr("  Notes: ");
-gfx_set(0.6, 0.8, 1, 1);
-gfx_drawnumber(notes_in_pattern, 0);
-
-gfx_set(0.8, 0.8, 0.8, 1);
-gfx_drawstr("  Length: ");
-gfx_set(0.6, 0.8, 1, 1);
-gfx_drawnumber(slider9, 0);
-gfx_drawstr("ms");
-
-gfx_set(0.8, 0.8, 0.8, 1);
-gfx_drawstr("  Humanize: ");
-gfx_set(0.6, 0.8, 1, 1);
-gfx_drawnumber(slider13, 0);
-gfx_drawstr("%");
-
-// Last note display
-gfx_x = 10; gfx_y = 88;
-gfx_set(0.8, 0.8, 0.8, 1);
-gfx_drawstr("Last Note: ");
-hit_count > 0 ? (
-  gfx_set(0.3, 1, 0.5, 1);
-  gfx_setfont(3, "Arial", 16, 66);
-  note_name_idx = last_note_midi % 12;
-  note_oct = (last_note_midi / 12)|0;
-  note_name_idx == 0 ? gfx_drawstr("C") :
-  note_name_idx == 1 ? gfx_drawstr("C#") :
-  note_name_idx == 2 ? gfx_drawstr("D") :
-  note_name_idx == 3 ? gfx_drawstr("D#") :
-  note_name_idx == 4 ? gfx_drawstr("E") :
-  note_name_idx == 5 ? gfx_drawstr("F") :
-  note_name_idx == 6 ? gfx_drawstr("F#") :
-  note_name_idx == 7 ? gfx_drawstr("G") :
-  note_name_idx == 8 ? gfx_drawstr("G#") :
-  note_name_idx == 9 ? gfx_drawstr("A") :
-  note_name_idx == 10 ? gfx_drawstr("A#") :
-  note_name_idx == 11 ? gfx_drawstr("B");
-  gfx_drawnumber(note_oct, 0);
-  gfx_set(0.6, 0.6, 0.6, 1);
-  gfx_setfont(2, "Arial", 13, 0);
-  gfx_drawstr("  (MIDI ");
-  gfx_drawnumber(last_note_midi, 0);
-  gfx_drawstr(")");
-) : (
-  gfx_set(0.5, 0.5, 0.5, 1);
-  gfx_drawstr("--");
 );
 
 // TRIG NOTE (slider2)
@@ -813,9 +717,8 @@ hit_count > 0 ? (
   gfx_drawnumber((last_note_midi / 12)|0, 0);
   gfx_setfont(5);
   gfx_set(0.549, 0.490, 0.431, 1);
-  gfx_drawstr("  (");
+  gfx_drawstr(" MIDI ");
   gfx_drawnumber(last_note_midi, 0);
-  gfx_drawstr(")");
 ) : (
   gfx_setfont(3);
   gfx_set(0.227, 0.208, 0.188, 1);
