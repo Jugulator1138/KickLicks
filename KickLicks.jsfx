@@ -276,15 +276,15 @@ global_sample_pos += samplesblock;
 
 
 
-@gfx 560 380
+@gfx 1120 760
 
 // Font setup
 gui_fonts_set == 0 ? (
-  gfx_setfont(1, "Courier New", 15, 66);
-  gfx_setfont(2, "Courier New", 12, 0);
-  gfx_setfont(3, "Courier New", 18, 66);
-  gfx_setfont(4, "Courier New", 11, 0);
-  gfx_setfont(5, "Courier New", 13, 0);
+  gfx_setfont(1, "Courier New", 30, 66);
+  gfx_setfont(2, "Courier New", 24, 0);
+  gfx_setfont(3, "Courier New", 36, 66);
+  gfx_setfont(4, "Courier New", 22, 0);
+  gfx_setfont(5, "Courier New", 26, 0);
   gui_fonts_set = 1;
 );
 
@@ -296,20 +296,20 @@ rclick = (mouse_cap & 2) && !(last_mouse_cap & 2);
 // Active drag
 (mouse_cap & 1) && drag_slider > 0 ? (
   drag_slider == 8 ? (
-    slider8 = max(1, min(16, (drag_start_val + (mouse_x - drag_start_x) * 0.1)|0));
+    slider8 = max(1, min(16, (drag_start_val + (mouse_x - drag_start_x) * 0.05)|0));
     sliderchange(slider8); build_note_list();
   ) :
   drag_slider == 9 ? (
-    slider9 = max(50, min(2000, (drag_start_val + (mouse_x - drag_start_x) * 5.0)|0));
+    slider9 = max(50, min(2000, (drag_start_val + (mouse_x - drag_start_x) * 2.5)|0));
     sliderchange(slider9);
     note_length_samples = (slider9 * srate / 1000)|0;
   ) :
   drag_slider == 11 ? (
-    slider11 = max(1, min(127, (drag_start_val + (mouse_x - drag_start_x) * 0.5)|0));
+    slider11 = max(1, min(127, (drag_start_val + (mouse_x - drag_start_x) * 0.25)|0));
     sliderchange(slider11);
   ) :
   drag_slider == 13 ? (
-    slider13 = max(0, min(100, (drag_start_val + (mouse_x - drag_start_x) * 0.4)|0));
+    slider13 = max(0, min(100, (drag_start_val + (mouse_x - drag_start_x) * 0.2)|0));
     sliderchange(slider13);
   );
 );
@@ -322,22 +322,22 @@ gfx_set(1, 1, 1, 0.03);
 i = -gfx_h;
 while (i < gfx_w) (
   gfx_line(i, 0, i + gfx_h, gfx_h);
-  i += 8;
+  i += 16;
 );
 
 // ==================== TITLE BAR (0-36) ====================
 gfx_set(0.173, 0.122, 0.059, 1);
-gfx_rect(0, 0, gfx_w, 36);
+gfx_rect(0, 0, gfx_w, 72);
 gfx_set(0.545, 0.227, 0.118, 1);
-gfx_rect(0, 34, gfx_w, 2);
+gfx_rect(0, 68, gfx_w, 4);
 
 gfx_setfont(3);
-gfx_set(0.910, 0.835, 0.690, 1);
-gfx_x = 12; gfx_y = 6;
+gfx_set(1.0, 0.98, 0.92, 1);
+gfx_x = 24; gfx_y = 12;
 gfx_drawstr("KICKLICKS");
 gfx_setfont(2);
-gfx_set(0.549, 0.490, 0.431, 1);
-gfx_x = 150; gfx_y = 12;
+gfx_set(0.82, 0.76, 0.68, 1);
+gfx_x = 300; gfx_y = 24;
 gfx_drawstr("BASS GENERATOR");
 
 // LED
@@ -349,265 +349,265 @@ note_flash > 0 ? (
 ) : (
   gfx_set(0.165, 0.102, 0.063, 1);
 );
-gfx_circle(gfx_w - 55, 18, 7, 1);
+gfx_circle(gfx_w - 110, 36, 14, 1);
 
 gfx_setfont(5);
-gfx_set(0.659, 0.490, 0.322, 1);
-gfx_x = gfx_w - 42; gfx_y = 11;
+gfx_set(0.90, 0.75, 0.55, 1);
+gfx_x = gfx_w - 84; gfx_y = 22;
 gfx_drawnumber(hit_count, 0);
 
 // ==================== MIDI I/O (left 0-162, y36-130) ====================
 gfx_set(0.102, 0.090, 0.075, 1);
-gfx_rect(0, 36, 162, 94);
+gfx_rect(0, 72, 324, 188);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(0, 36, 162, 1);
-gfx_rect(162, 36, 1, 94);
+gfx_rect(0, 72, 324, 2);
+gfx_rect(324, 72, 2, 188);
 
 gfx_setfont(1);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 8; gfx_y = 39;
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 16; gfx_y = 78;
 gfx_drawstr("MIDI I/O");
 
 // IN CH (slider1)
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 8; gfx_y = 58; gfx_drawstr("IN CH");
-gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(72, 56, 20, 16);
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(73, 57, 18, 14);
-gfx_set(0.659, 0.490, 0.322, 1); gfx_setfont(5);
-gfx_x = 79; gfx_y = 57; gfx_drawstr("-");
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(94, 56, 28, 16);
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 16; gfx_y = 116; gfx_drawstr("IN CH");
+gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(144, 112, 40, 32);
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(146, 114, 36, 28);
+gfx_set(0.90, 0.75, 0.55, 1); gfx_setfont(5);
+gfx_x = 158; gfx_y = 114; gfx_drawstr("-");
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(188, 112, 56, 32);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(94, 56, 28, 1); gfx_rect(94, 71, 28, 1);
-gfx_rect(94, 56, 1, 16); gfx_rect(121, 56, 1, 16);
-gfx_set(0.910, 0.835, 0.690, 1);
-gfx_x = 101; gfx_y = 57; gfx_drawnumber(slider1 + 1, 0);
-gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(124, 56, 20, 16);
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(125, 57, 18, 14);
-gfx_set(0.659, 0.490, 0.322, 1);
-gfx_x = 131; gfx_y = 57; gfx_drawstr("+");
-click && mouse_y >= 56 && mouse_y < 72 ? (
-  mouse_x >= 72 && mouse_x < 92 ? ( slider1 = max(0, slider1 - 1); sliderchange(slider1); );
-  mouse_x >= 124 && mouse_x < 144 ? ( slider1 = min(15, slider1 + 1); sliderchange(slider1); );
+gfx_rect(188, 112, 56, 2); gfx_rect(188, 142, 56, 2);
+gfx_rect(188, 112, 2, 32); gfx_rect(242, 112, 2, 32);
+gfx_set(1.0, 0.98, 0.92, 1);
+gfx_x = 202; gfx_y = 114; gfx_drawnumber(slider1 + 1, 0);
+gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(248, 112, 40, 32);
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(250, 114, 36, 28);
+gfx_set(0.90, 0.75, 0.55, 1);
+gfx_x = 262; gfx_y = 114; gfx_drawstr("+");
+click && mouse_y >= 112 && mouse_y < 144 ? (
+  mouse_x >= 144 && mouse_x < 184 ? ( slider1 = max(0, slider1 - 1); sliderchange(slider1); );
+  mouse_x >= 248 && mouse_x < 288 ? ( slider1 = min(15, slider1 + 1); sliderchange(slider1); );
 );
 
 // OUT CH (slider3)
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 8; gfx_y = 77; gfx_drawstr("OUT CH");
-gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(72, 75, 20, 16);
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(73, 76, 18, 14);
-gfx_set(0.659, 0.490, 0.322, 1); gfx_setfont(5);
-gfx_x = 79; gfx_y = 76; gfx_drawstr("-");
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(94, 75, 28, 16);
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 16; gfx_y = 154; gfx_drawstr("OUT CH");
+gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(144, 150, 40, 32);
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(146, 152, 36, 28);
+gfx_set(0.90, 0.75, 0.55, 1); gfx_setfont(5);
+gfx_x = 158; gfx_y = 152; gfx_drawstr("-");
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(188, 150, 56, 32);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(94, 75, 28, 1); gfx_rect(94, 90, 28, 1);
-gfx_rect(94, 75, 1, 16); gfx_rect(121, 75, 1, 16);
-gfx_set(0.910, 0.835, 0.690, 1);
-gfx_x = 101; gfx_y = 76; gfx_drawnumber(slider3 + 1, 0);
-gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(124, 75, 20, 16);
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(125, 76, 18, 14);
-gfx_set(0.659, 0.490, 0.322, 1);
-gfx_x = 131; gfx_y = 76; gfx_drawstr("+");
-click && mouse_y >= 75 && mouse_y < 91 ? (
-  mouse_x >= 72 && mouse_x < 92 ? ( slider3 = max(0, slider3 - 1); sliderchange(slider3); );
-  mouse_x >= 124 && mouse_x < 144 ? ( slider3 = min(15, slider3 + 1); sliderchange(slider3); );
+gfx_rect(188, 150, 56, 2); gfx_rect(188, 180, 56, 2);
+gfx_rect(188, 150, 2, 32); gfx_rect(242, 150, 2, 32);
+gfx_set(1.0, 0.98, 0.92, 1);
+gfx_x = 202; gfx_y = 152; gfx_drawnumber(slider3 + 1, 0);
+gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(248, 150, 40, 32);
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(250, 152, 36, 28);
+gfx_set(0.90, 0.75, 0.55, 1);
+gfx_x = 262; gfx_y = 152; gfx_drawstr("+");
+click && mouse_y >= 150 && mouse_y < 182 ? (
+  mouse_x >= 144 && mouse_x < 184 ? ( slider3 = max(0, slider3 - 1); sliderchange(slider3); );
+  mouse_x >= 248 && mouse_x < 288 ? ( slider3 = min(15, slider3 + 1); sliderchange(slider3); );
 );
 
 // TRIG NOTE (slider2)
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 8; gfx_y = 96; gfx_drawstr("TRIG");
-gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(72, 94, 20, 16);
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(73, 95, 18, 14);
-gfx_set(0.659, 0.490, 0.322, 1); gfx_setfont(5);
-gfx_x = 79; gfx_y = 95; gfx_drawstr("-");
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(94, 94, 28, 16);
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 16; gfx_y = 192; gfx_drawstr("TRIG");
+gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(144, 188, 40, 32);
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(146, 190, 36, 28);
+gfx_set(0.90, 0.75, 0.55, 1); gfx_setfont(5);
+gfx_x = 158; gfx_y = 190; gfx_drawstr("-");
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(188, 188, 56, 32);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(94, 94, 28, 1); gfx_rect(94, 109, 28, 1);
-gfx_rect(94, 94, 1, 16); gfx_rect(121, 94, 1, 16);
-gfx_set(0.910, 0.835, 0.690, 1);
-gfx_x = 99; gfx_y = 95; gfx_drawnumber(slider2, 0);
-gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(124, 94, 20, 16);
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(125, 95, 18, 14);
-gfx_set(0.659, 0.490, 0.322, 1);
-gfx_x = 131; gfx_y = 95; gfx_drawstr("+");
-click && mouse_y >= 94 && mouse_y < 110 ? (
-  mouse_x >= 72 && mouse_x < 92 ? ( slider2 = max(0, slider2 - 1); sliderchange(slider2); );
-  mouse_x >= 124 && mouse_x < 144 ? ( slider2 = min(127, slider2 + 1); sliderchange(slider2); );
+gfx_rect(188, 188, 56, 2); gfx_rect(188, 218, 56, 2);
+gfx_rect(188, 188, 2, 32); gfx_rect(242, 188, 2, 32);
+gfx_set(1.0, 0.98, 0.92, 1);
+gfx_x = 198; gfx_y = 190; gfx_drawnumber(slider2, 0);
+gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(248, 188, 40, 32);
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(250, 190, 36, 28);
+gfx_set(0.90, 0.75, 0.55, 1);
+gfx_x = 262; gfx_y = 190; gfx_drawstr("+");
+click && mouse_y >= 188 && mouse_y < 220 ? (
+  mouse_x >= 144 && mouse_x < 184 ? ( slider2 = max(0, slider2 - 1); sliderchange(slider2); );
+  mouse_x >= 248 && mouse_x < 288 ? ( slider2 = min(127, slider2 + 1); sliderchange(slider2); );
 );
 
 // PASS-THRU (slider12, 0=Yes 1=No)
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 8; gfx_y = 115; gfx_drawstr("THRU");
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 16; gfx_y = 230; gfx_drawstr("THRU");
 slider12 == 0 ? gfx_set(0.545, 0.227, 0.118, 1) : gfx_set(0.133, 0.122, 0.102, 1);
-gfx_rect(72, 113, 35, 16);
+gfx_rect(144, 226, 70, 32);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(72, 113, 35, 1); gfx_rect(72, 128, 35, 1);
-gfx_rect(72, 113, 1, 16); gfx_rect(106, 113, 1, 16);
-slider12 == 0 ? gfx_set(0.910, 0.835, 0.690, 1) : gfx_set(0.361, 0.322, 0.282, 1);
-gfx_setfont(4); gfx_x = 80; gfx_y = 115; gfx_drawstr("YES");
+gfx_rect(144, 226, 70, 2); gfx_rect(144, 256, 70, 2);
+gfx_rect(144, 226, 2, 32); gfx_rect(212, 226, 2, 32);
+slider12 == 0 ? gfx_set(1.0, 0.98, 0.92, 1) : gfx_set(0.80, 0.74, 0.66, 1);
+gfx_setfont(4); gfx_x = 160; gfx_y = 230; gfx_drawstr("YES");
 slider12 == 1 ? gfx_set(0.545, 0.227, 0.118, 1) : gfx_set(0.133, 0.122, 0.102, 1);
-gfx_rect(109, 113, 35, 16);
+gfx_rect(218, 226, 70, 32);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(109, 113, 35, 1); gfx_rect(109, 128, 35, 1);
-gfx_rect(109, 113, 1, 16); gfx_rect(143, 113, 1, 16);
-slider12 == 1 ? gfx_set(0.910, 0.835, 0.690, 1) : gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 119; gfx_y = 115; gfx_drawstr("NO");
-click && mouse_y >= 113 && mouse_y < 129 ? (
-  mouse_x >= 72 && mouse_x < 107 ? ( slider12 = 0; sliderchange(slider12); );
-  mouse_x >= 109 && mouse_x < 144 ? ( slider12 = 1; sliderchange(slider12); );
+gfx_rect(218, 226, 70, 2); gfx_rect(218, 256, 70, 2);
+gfx_rect(218, 226, 2, 32); gfx_rect(286, 226, 2, 32);
+slider12 == 1 ? gfx_set(1.0, 0.98, 0.92, 1) : gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 238; gfx_y = 230; gfx_drawstr("NO");
+click && mouse_y >= 226 && mouse_y < 258 ? (
+  mouse_x >= 144 && mouse_x < 214 ? ( slider12 = 0; sliderchange(slider12); );
+  mouse_x >= 218 && mouse_x < 288 ? ( slider12 = 1; sliderchange(slider12); );
 );
 
 // ==================== KEY / SCALE (right 163-560, y36-130) ====================
 gfx_set(0.133, 0.122, 0.102, 1);
-gfx_rect(163, 36, 397, 94);
+gfx_rect(326, 72, 794, 188);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(163, 36, 397, 1);
+gfx_rect(326, 72, 794, 2);
 
 gfx_setfont(1);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 172; gfx_y = 39;
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 344; gfx_y = 78;
 gfx_drawstr("KEY / SCALE");
 
 // ROOT (slider5, 0-11 cycle)
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 172; gfx_y = 62; gfx_drawstr("ROOT");
-mouse_x >= 218 && mouse_x < 298 && mouse_y >= 58 && mouse_y < 78 ?
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 344; gfx_y = 124; gfx_drawstr("ROOT");
+mouse_x >= 436 && mouse_x < 596 && mouse_y >= 116 && mouse_y < 156 ?
   gfx_set(0.478, 0.361, 0.227, 1) : gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(218, 58, 80, 20);
+gfx_rect(436, 116, 160, 40);
 gfx_set(0.102, 0.090, 0.075, 1);
-gfx_rect(219, 59, 78, 18);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_line(225, 68, 229, 64); gfx_line(225, 68, 229, 72);
-gfx_line(291, 68, 287, 64); gfx_line(291, 68, 287, 72);
+gfx_rect(438, 118, 156, 36);
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_line(450, 136, 458, 128); gfx_line(450, 136, 458, 144);
+gfx_line(582, 136, 574, 128); gfx_line(582, 136, 574, 144);
 gfx_setfont(5);
-gfx_set(0.910, 0.835, 0.690, 1);
-gfx_x = 248; gfx_y = 62;
+gfx_set(1.0, 0.98, 0.92, 1);
+gfx_x = 496; gfx_y = 124;
 gui_nn(slider5|0);
-click && mouse_y >= 58 && mouse_y < 78 && mouse_x >= 218 && mouse_x < 298 ? (
+click && mouse_y >= 116 && mouse_y < 156 && mouse_x >= 436 && mouse_x < 596 ? (
   slider5 = ((slider5|0) + 1) % 12; sliderchange(slider5); build_note_list();
 );
-rclick && mouse_y >= 58 && mouse_y < 78 && mouse_x >= 218 && mouse_x < 298 ? (
+rclick && mouse_y >= 116 && mouse_y < 156 && mouse_x >= 436 && mouse_x < 596 ? (
   slider5 = ((slider5|0) - 1 + 12) % 12; sliderchange(slider5); build_note_list();
 );
 
 // SCALE (slider4, 0-7 cycle)
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 310; gfx_y = 62; gfx_drawstr("SCALE");
-mouse_x >= 358 && mouse_x < 540 && mouse_y >= 58 && mouse_y < 78 ?
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 620; gfx_y = 124; gfx_drawstr("SCALE");
+mouse_x >= 716 && mouse_x < 1080 && mouse_y >= 116 && mouse_y < 156 ?
   gfx_set(0.478, 0.361, 0.227, 1) : gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(358, 58, 182, 20);
+gfx_rect(716, 116, 364, 40);
 gfx_set(0.102, 0.090, 0.075, 1);
-gfx_rect(359, 59, 180, 18);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_line(365, 68, 369, 64); gfx_line(365, 68, 369, 72);
-gfx_line(533, 68, 529, 64); gfx_line(533, 68, 529, 72);
+gfx_rect(718, 118, 360, 36);
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_line(730, 136, 738, 128); gfx_line(730, 136, 738, 144);
+gfx_line(1066, 136, 1058, 128); gfx_line(1066, 136, 1058, 144);
 gfx_setfont(5);
-gfx_set(0.910, 0.835, 0.690, 1);
-gfx_x = 410; gfx_y = 62;
+gfx_set(1.0, 0.98, 0.92, 1);
+gfx_x = 820; gfx_y = 124;
 gui_sn(slider4|0);
-click && mouse_y >= 58 && mouse_y < 78 && mouse_x >= 358 && mouse_x < 540 ? (
+click && mouse_y >= 116 && mouse_y < 156 && mouse_x >= 716 && mouse_x < 1080 ? (
   slider4 = ((slider4|0) + 1) % 8; sliderchange(slider4); build_note_list();
 );
-rclick && mouse_y >= 58 && mouse_y < 78 && mouse_x >= 358 && mouse_x < 540 ? (
+rclick && mouse_y >= 116 && mouse_y < 156 && mouse_x >= 716 && mouse_x < 1080 ? (
   slider4 = ((slider4|0) - 1 + 8) % 8; sliderchange(slider4); build_note_list();
 );
 
 // OCTAVE (slider6, 1-3 nudge)
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 172; gfx_y = 93; gfx_drawstr("OCTAVE");
-gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(232, 90, 20, 16);
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(233, 91, 18, 14);
-gfx_set(0.659, 0.490, 0.322, 1); gfx_setfont(5);
-gfx_x = 239; gfx_y = 91; gfx_drawstr("-");
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(254, 90, 28, 16);
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 344; gfx_y = 186; gfx_drawstr("OCTAVE");
+gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(464, 180, 40, 32);
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(466, 182, 36, 28);
+gfx_set(0.90, 0.75, 0.55, 1); gfx_setfont(5);
+gfx_x = 478; gfx_y = 182; gfx_drawstr("-");
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(508, 180, 56, 32);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(254, 90, 28, 1); gfx_rect(254, 105, 28, 1);
-gfx_rect(254, 90, 1, 16); gfx_rect(281, 90, 1, 16);
-gfx_set(0.910, 0.835, 0.690, 1);
-gfx_x = 264; gfx_y = 91; gfx_drawnumber(slider6, 0);
-gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(284, 90, 20, 16);
-gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(285, 91, 18, 14);
-gfx_set(0.659, 0.490, 0.322, 1);
-gfx_x = 291; gfx_y = 91; gfx_drawstr("+");
-click && mouse_y >= 90 && mouse_y < 106 ? (
-  mouse_x >= 232 && mouse_x < 252 ? ( slider6 = max(1, slider6 - 1); sliderchange(slider6); build_note_list(); );
-  mouse_x >= 284 && mouse_x < 304 ? ( slider6 = min(3, slider6 + 1); sliderchange(slider6); build_note_list(); );
+gfx_rect(508, 180, 56, 2); gfx_rect(508, 210, 56, 2);
+gfx_rect(508, 180, 2, 32); gfx_rect(562, 180, 2, 32);
+gfx_set(1.0, 0.98, 0.92, 1);
+gfx_x = 528; gfx_y = 182; gfx_drawnumber(slider6, 0);
+gfx_set(0.227, 0.208, 0.188, 1); gfx_rect(568, 180, 40, 32);
+gfx_set(0.133, 0.122, 0.102, 1); gfx_rect(570, 182, 36, 28);
+gfx_set(0.90, 0.75, 0.55, 1);
+gfx_x = 582; gfx_y = 182; gfx_drawstr("+");
+click && mouse_y >= 180 && mouse_y < 212 ? (
+  mouse_x >= 464 && mouse_x < 504 ? ( slider6 = max(1, slider6 - 1); sliderchange(slider6); build_note_list(); );
+  mouse_x >= 568 && mouse_x < 608 ? ( slider6 = min(3, slider6 + 1); sliderchange(slider6); build_note_list(); );
 );
 
 // ==================== PATTERN (y130-195) ====================
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(0, 130, gfx_w, 1);
+gfx_rect(0, 260, gfx_w, 2);
 gfx_setfont(1);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 8; gfx_y = 133;
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 16; gfx_y = 266;
 gfx_drawstr("PATTERN");
 
 // Mode radio (slider7, 0-4)
 i = 0;
 while (i < 5) (
-  bx = 15 + i * 52;
+  bx = 30 + i * 104;
   slider7 == i ? gfx_set(0.545, 0.227, 0.118, 1) : gfx_set(0.133, 0.122, 0.102, 1);
-  gfx_rect(bx, 149, 50, 16);
+  gfx_rect(bx, 298, 100, 32);
   gfx_set(0.227, 0.208, 0.188, 1);
-  gfx_rect(bx, 149, 50, 1); gfx_rect(bx, 164, 50, 1);
-  gfx_rect(bx, 149, 1, 16); gfx_rect(bx + 49, 149, 1, 16);
-  slider7 == i ? gfx_set(0.910, 0.835, 0.690, 1) : gfx_set(0.361, 0.322, 0.282, 1);
-  gfx_setfont(4); gfx_y = 152;
-  i == 0 ? ( gfx_x = bx + 16; gfx_drawstr("UP"); ) :
-  i == 1 ? ( gfx_x = bx + 10; gfx_drawstr("DOWN"); ) :
-  i == 2 ? ( gfx_x = bx + 10; gfx_drawstr("PEND"); ) :
-  i == 3 ? ( gfx_x = bx + 10; gfx_drawstr("RAND"); ) :
-  i == 4 ? ( gfx_x = bx + 16; gfx_drawstr("R5"); );
+  gfx_rect(bx, 298, 100, 2); gfx_rect(bx, 328, 100, 2);
+  gfx_rect(bx, 298, 2, 32); gfx_rect(bx + 98, 298, 2, 32);
+  slider7 == i ? gfx_set(1.0, 0.98, 0.92, 1) : gfx_set(0.80, 0.74, 0.66, 1);
+  gfx_setfont(4); gfx_y = 304;
+  i == 0 ? ( gfx_x = bx + 32; gfx_drawstr("UP"); ) :
+  i == 1 ? ( gfx_x = bx + 20; gfx_drawstr("DOWN"); ) :
+  i == 2 ? ( gfx_x = bx + 20; gfx_drawstr("PEND"); ) :
+  i == 3 ? ( gfx_x = bx + 20; gfx_drawstr("RAND"); ) :
+  i == 4 ? ( gfx_x = bx + 32; gfx_drawstr("R5"); );
   i += 1;
 );
-click && mouse_y >= 149 && mouse_y < 165 ? (
+click && mouse_y >= 298 && mouse_y < 330 ? (
   i = 0;
   while (i < 5) (
-    bx = 15 + i * 52;
-    mouse_x >= bx && mouse_x < bx + 50 ? ( slider7 = i; sliderchange(slider7); );
+    bx = 30 + i * 104;
+    mouse_x >= bx && mouse_x < bx + 100 ? ( slider7 = i; sliderchange(slider7); );
     i += 1;
   );
 );
 
 // Notes in Pattern (slider8, 1-16 drag)
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 290; gfx_y = 149; gfx_drawstr("NOTES");
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 580; gfx_y = 298; gfx_drawstr("NOTES");
 gfx_setfont(5);
-gfx_set(0.910, 0.835, 0.690, 1);
-gfx_x = 520; gfx_y = 149; gfx_drawnumber(slider8|0, 0);
+gfx_set(1.0, 0.98, 0.92, 1);
+gfx_x = 1040; gfx_y = 298; gfx_drawnumber(slider8|0, 0);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(290, 162, 250, 6);
-fill_w = (((slider8|0) - 1) / 15) * 250;
+gfx_rect(580, 324, 500, 12);
+fill_w = (((slider8|0) - 1) / 15) * 500;
 drag_slider == 8 ? gfx_set(0.769, 0.322, 0.118, 1) : gfx_set(0.545, 0.227, 0.118, 1);
-gfx_rect(290, 162, fill_w, 6);
-gfx_set(0.659, 0.490, 0.322, 1);
-gfx_rect(290 + fill_w - 2, 159, 5, 12);
-click && drag_slider < 0 && mouse_y >= 156 && mouse_y < 172 && mouse_x >= 290 && mouse_x < 540 ? (
+gfx_rect(580, 324, fill_w, 12);
+gfx_set(0.90, 0.75, 0.55, 1);
+gfx_rect(580 + fill_w - 4, 318, 10, 24);
+click && drag_slider < 0 && mouse_y >= 312 && mouse_y < 344 && mouse_x >= 580 && mouse_x < 1080 ? (
   drag_slider = 8; drag_start_x = mouse_x; drag_start_val = slider8;
 );
 
 // Step boxes
 gfx_setfont(4);
-box_sz = 22; box_gp = 2; box_y = 172;
+box_sz = 44; box_gp = 4; box_y = 344;
 max_disp = min(notes_in_pattern, 16);
 i = 0;
 while (i < max_disp) (
-  bx = 15 + i * (box_sz + box_gp);
+  bx = 30 + i * (box_sz + box_gp);
   i == pattern_pos ? gfx_set(0.545, 0.227, 0.118, 1) : gfx_set(0.133, 0.122, 0.102, 1);
   gfx_rect(bx, box_y, box_sz, box_sz);
   gfx_set(0.227, 0.208, 0.188, 1);
-  gfx_rect(bx, box_y, box_sz, 1); gfx_rect(bx, box_y + box_sz - 1, box_sz, 1);
-  gfx_rect(bx, box_y, 1, box_sz); gfx_rect(bx + box_sz - 1, box_y, 1, box_sz);
+  gfx_rect(bx, box_y, box_sz, 2); gfx_rect(bx, box_y + box_sz - 2, box_sz, 2);
+  gfx_rect(bx, box_y, 2, box_sz); gfx_rect(bx + box_sz - 2, box_y, 2, box_sz);
   i < note_list_len ? (
-    i == pattern_pos ? gfx_set(0, 0, 0, 1) : gfx_set(0.361, 0.322, 0.282, 1);
-    gfx_x = bx + 3; gfx_y = box_y + 6;
+    i == pattern_pos ? gfx_set(0, 0, 0, 1) : gfx_set(0.80, 0.74, 0.66, 1);
+    gfx_x = bx + 6; gfx_y = box_y + 12;
     gui_nn(200[i] % 12);
   );
   i += 1;
@@ -615,130 +615,130 @@ while (i < max_disp) (
 
 // ==================== PLAYBACK (y195-305) ====================
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(0, 195, gfx_w, 1);
+gfx_rect(0, 390, gfx_w, 2);
 gfx_setfont(1);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 8; gfx_y = 198;
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 16; gfx_y = 396;
 gfx_drawstr("PLAYBACK");
 
 // Note Length (slider9, 50-2000)
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 15; gfx_y = 215; gfx_drawstr("NOTE LENGTH");
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 30; gfx_y = 430; gfx_drawstr("NOTE LENGTH");
 gfx_setfont(5);
-gfx_set(0.910, 0.835, 0.690, 1);
-gfx_x = 480; gfx_y = 215; gfx_drawnumber(slider9|0, 0); gfx_drawstr("MS");
+gfx_set(1.0, 0.98, 0.92, 1);
+gfx_x = 960; gfx_y = 430; gfx_drawnumber(slider9|0, 0); gfx_drawstr("MS");
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(15, 228, 530, 6);
-fill_w = ((slider9 - 50) / 1950) * 530;
+gfx_rect(30, 456, 1060, 12);
+fill_w = ((slider9 - 50) / 1950) * 1060;
 drag_slider == 9 ? gfx_set(0.769, 0.322, 0.118, 1) : gfx_set(0.545, 0.227, 0.118, 1);
-gfx_rect(15, 228, fill_w, 6);
-gfx_set(0.659, 0.490, 0.322, 1);
-gfx_rect(15 + fill_w - 2, 225, 5, 12);
-click && drag_slider < 0 && mouse_y >= 222 && mouse_y < 238 && mouse_x >= 15 && mouse_x < 545 ? (
+gfx_rect(30, 456, fill_w, 12);
+gfx_set(0.90, 0.75, 0.55, 1);
+gfx_rect(30 + fill_w - 4, 450, 10, 24);
+click && drag_slider < 0 && mouse_y >= 444 && mouse_y < 476 && mouse_x >= 30 && mouse_x < 1090 ? (
   drag_slider = 9; drag_start_x = mouse_x; drag_start_val = slider9;
 );
 
 // Velocity Mode (slider10, 0=Follow 1=Fixed)
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 15; gfx_y = 243; gfx_drawstr("VELOCITY");
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 30; gfx_y = 486; gfx_drawstr("VELOCITY");
 slider10 == 0 ? gfx_set(0.545, 0.227, 0.118, 1) : gfx_set(0.133, 0.122, 0.102, 1);
-gfx_rect(90, 241, 70, 16);
+gfx_rect(180, 482, 140, 32);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(90, 241, 70, 1); gfx_rect(90, 256, 70, 1);
-gfx_rect(90, 241, 1, 16); gfx_rect(159, 241, 1, 16);
-slider10 == 0 ? gfx_set(0.910, 0.835, 0.690, 1) : gfx_set(0.361, 0.322, 0.282, 1);
-gfx_setfont(4); gfx_x = 100; gfx_y = 243; gfx_drawstr("FOLLOW");
+gfx_rect(180, 482, 140, 2); gfx_rect(180, 512, 140, 2);
+gfx_rect(180, 482, 2, 32); gfx_rect(318, 482, 2, 32);
+slider10 == 0 ? gfx_set(1.0, 0.98, 0.92, 1) : gfx_set(0.80, 0.74, 0.66, 1);
+gfx_setfont(4); gfx_x = 200; gfx_y = 486; gfx_drawstr("FOLLOW");
 slider10 == 1 ? gfx_set(0.545, 0.227, 0.118, 1) : gfx_set(0.133, 0.122, 0.102, 1);
-gfx_rect(162, 241, 60, 16);
+gfx_rect(324, 482, 120, 32);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(162, 241, 60, 1); gfx_rect(162, 256, 60, 1);
-gfx_rect(162, 241, 1, 16); gfx_rect(221, 241, 1, 16);
-slider10 == 1 ? gfx_set(0.910, 0.835, 0.690, 1) : gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 175; gfx_y = 243; gfx_drawstr("FIXED");
-click && mouse_y >= 241 && mouse_y < 257 ? (
-  mouse_x >= 90 && mouse_x < 160 ? ( slider10 = 0; sliderchange(slider10); );
-  mouse_x >= 162 && mouse_x < 222 ? ( slider10 = 1; sliderchange(slider10); );
+gfx_rect(324, 482, 120, 2); gfx_rect(324, 512, 120, 2);
+gfx_rect(324, 482, 2, 32); gfx_rect(442, 482, 2, 32);
+slider10 == 1 ? gfx_set(1.0, 0.98, 0.92, 1) : gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 350; gfx_y = 486; gfx_drawstr("FIXED");
+click && mouse_y >= 482 && mouse_y < 514 ? (
+  mouse_x >= 180 && mouse_x < 320 ? ( slider10 = 0; sliderchange(slider10); );
+  mouse_x >= 324 && mouse_x < 444 ? ( slider10 = 1; sliderchange(slider10); );
 );
 
 // Fixed Velocity (slider11, 1-127) - dimmed when Follow
 sl_a = slider10 == 1 ? 1 : 0.3;
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, sl_a);
-gfx_x = 15; gfx_y = 261; gfx_drawstr("FIXED VEL");
+gfx_set(0.80, 0.74, 0.66, sl_a);
+gfx_x = 30; gfx_y = 522; gfx_drawstr("FIXED VEL");
 gfx_setfont(5);
-gfx_set(0.910, 0.835, 0.690, sl_a);
-gfx_x = 510; gfx_y = 261; gfx_drawnumber(slider11|0, 0);
+gfx_set(1.0, 0.98, 0.92, sl_a);
+gfx_x = 1020; gfx_y = 522; gfx_drawnumber(slider11|0, 0);
 gfx_set(0.227, 0.208, 0.188, sl_a);
-gfx_rect(15, 274, 530, 6);
-fill_w = ((slider11 - 1) / 126) * 530;
+gfx_rect(30, 548, 1060, 12);
+fill_w = ((slider11 - 1) / 126) * 1060;
 drag_slider == 11 ? gfx_set(0.769, 0.322, 0.118, sl_a) : gfx_set(0.545, 0.227, 0.118, sl_a);
-gfx_rect(15, 274, fill_w, 6);
-gfx_set(0.659, 0.490, 0.322, sl_a);
-gfx_rect(15 + fill_w - 2, 271, 5, 12);
-slider10 == 1 && click && drag_slider < 0 && mouse_y >= 268 && mouse_y < 284 && mouse_x >= 15 && mouse_x < 545 ? (
+gfx_rect(30, 548, fill_w, 12);
+gfx_set(0.90, 0.75, 0.55, sl_a);
+gfx_rect(30 + fill_w - 4, 542, 10, 24);
+slider10 == 1 && click && drag_slider < 0 && mouse_y >= 536 && mouse_y < 568 && mouse_x >= 30 && mouse_x < 1090 ? (
   drag_slider = 11; drag_start_x = mouse_x; drag_start_val = slider11;
 );
 
 // Humanize (slider13, 0-100)
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 15; gfx_y = 285; gfx_drawstr("HUMANIZE");
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 30; gfx_y = 570; gfx_drawstr("HUMANIZE");
 gfx_setfont(5);
-gfx_set(0.910, 0.835, 0.690, 1);
-gfx_x = 505; gfx_y = 285; gfx_drawnumber(slider13|0, 0); gfx_drawstr("%");
+gfx_set(1.0, 0.98, 0.92, 1);
+gfx_x = 1010; gfx_y = 570; gfx_drawnumber(slider13|0, 0); gfx_drawstr("%");
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(15, 298, 530, 6);
-fill_w = (slider13 / 100) * 530;
+gfx_rect(30, 596, 1060, 12);
+fill_w = (slider13 / 100) * 1060;
 drag_slider == 13 ? gfx_set(0.769, 0.322, 0.118, 1) : gfx_set(0.545, 0.227, 0.118, 1);
-gfx_rect(15, 298, fill_w, 6);
-gfx_set(0.659, 0.490, 0.322, 1);
-gfx_rect(15 + fill_w - 2, 295, 5, 12);
-click && drag_slider < 0 && mouse_y >= 292 && mouse_y < 308 && mouse_x >= 15 && mouse_x < 545 ? (
+gfx_rect(30, 596, fill_w, 12);
+gfx_set(0.90, 0.75, 0.55, 1);
+gfx_rect(30 + fill_w - 4, 590, 10, 24);
+click && drag_slider < 0 && mouse_y >= 584 && mouse_y < 616 && mouse_x >= 30 && mouse_x < 1090 ? (
   drag_slider = 13; drag_start_x = mouse_x; drag_start_val = slider13;
 );
 
 // ==================== FOOTER (y310-380) ====================
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(0, 310, gfx_w, 1);
+gfx_rect(0, 620, gfx_w, 2);
 gfx_set(0.118, 0.157, 0.125, 1);
-gfx_rect(0, 311, gfx_w, 1);
+gfx_rect(0, 622, gfx_w, 2);
 
 // Last note
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 15; gfx_y = 318; gfx_drawstr("LAST NOTE");
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 30; gfx_y = 636; gfx_drawstr("LAST NOTE");
 hit_count > 0 ? (
   gfx_setfont(3);
-  gfx_set(0.910, 0.835, 0.690, 1);
-  gfx_x = 15; gfx_y = 335;
+  gfx_set(1.0, 0.98, 0.92, 1);
+  gfx_x = 30; gfx_y = 670;
   gui_nn(last_note_midi % 12);
   gfx_drawnumber((last_note_midi / 12)|0, 0);
   gfx_setfont(5);
-  gfx_set(0.549, 0.490, 0.431, 1);
+  gfx_set(0.82, 0.76, 0.68, 1);
   gfx_drawstr(" MIDI ");
   gfx_drawnumber(last_note_midi, 0);
 ) : (
   gfx_setfont(3);
   gfx_set(0.227, 0.208, 0.188, 1);
-  gfx_x = 15; gfx_y = 335; gfx_drawstr("--");
+  gfx_x = 30; gfx_y = 670; gfx_drawstr("--");
 );
 
 // Reset button (slider14, momentary)
-mouse_x >= 300 && mouse_x < 390 && mouse_y >= 325 && mouse_y < 355 ? (
+mouse_x >= 600 && mouse_x < 780 && mouse_y >= 650 && mouse_y < 710 ? (
   gfx_set(0.173, 0.122, 0.059, 1);
 ) : (
   gfx_set(0.133, 0.122, 0.102, 1);
 );
-gfx_rect(301, 326, 88, 28);
+gfx_rect(602, 652, 176, 56);
 gfx_set(0.227, 0.208, 0.188, 1);
-gfx_rect(300, 325, 90, 1); gfx_rect(300, 354, 90, 1);
-gfx_rect(300, 325, 1, 30); gfx_rect(389, 325, 1, 30);
+gfx_rect(600, 650, 180, 2); gfx_rect(600, 708, 180, 2);
+gfx_rect(600, 650, 2, 60); gfx_rect(778, 650, 2, 60);
 gfx_setfont(1);
-gfx_set(0.910, 0.835, 0.690, 1);
-gfx_x = 318; gfx_y = 333; gfx_drawstr("RESET");
-click && mouse_x >= 300 && mouse_x < 390 && mouse_y >= 325 && mouse_y < 355 ? (
+gfx_set(1.0, 0.98, 0.92, 1);
+gfx_x = 636; gfx_y = 666; gfx_drawstr("RESET");
+click && mouse_x >= 600 && mouse_x < 780 && mouse_y >= 650 && mouse_y < 710 ? (
   pattern_pos = 0; pendulum_dir = 1;
   slider14 = 1; sliderchange(slider14);
   slider14 = 0; sliderchange(slider14);
@@ -748,19 +748,19 @@ click && mouse_x >= 300 && mouse_x < 390 && mouse_y >= 325 && mouse_y < 355 ? (
 gfx_setfont(5);
 note_active ? (
   gfx_set(1.0, 0.420, 0.102, 1);
-  gfx_x = 430; gfx_y = 330; gfx_drawstr("ACTIVE");
+  gfx_x = 860; gfx_y = 660; gfx_drawstr("ACTIVE");
 ) : (
-  gfx_set(0.361, 0.322, 0.282, 1);
-  gfx_x = 430; gfx_y = 330; gfx_drawstr("IDLE");
+  gfx_set(0.80, 0.74, 0.66, 1);
+  gfx_x = 860; gfx_y = 660; gfx_drawstr("IDLE");
 );
 
 // Channel info
 gfx_setfont(4);
-gfx_set(0.361, 0.322, 0.282, 1);
-gfx_x = 430; gfx_y = 350; gfx_drawstr("IN:");
-gfx_set(0.549, 0.490, 0.431, 1); gfx_drawnumber(slider1 + 1, 0);
-gfx_set(0.361, 0.322, 0.282, 1); gfx_drawstr(" OUT:");
-gfx_set(0.549, 0.490, 0.431, 1); gfx_drawnumber(slider3 + 1, 0);
+gfx_set(0.80, 0.74, 0.66, 1);
+gfx_x = 860; gfx_y = 700; gfx_drawstr("IN:");
+gfx_set(0.82, 0.76, 0.68, 1); gfx_drawnumber(slider1 + 1, 0);
+gfx_set(0.80, 0.74, 0.66, 1); gfx_drawstr(" OUT:");
+gfx_set(0.82, 0.76, 0.68, 1); gfx_drawnumber(slider3 + 1, 0);
 
 // End frame
 last_mouse_cap = mouse_cap;
